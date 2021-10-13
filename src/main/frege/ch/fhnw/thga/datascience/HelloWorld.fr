@@ -1,0 +1,3 @@
+module ch.fhnw.thga.datascience.HelloWorld where
+
+main = putStrLn "Hello World"
