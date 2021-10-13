@@ -34,7 +34,7 @@ import frege.prelude.PreludeText;
 @SuppressWarnings("unused")
 @Meta.FregePackage(
   source="/Users/Shared/projects/git/frege-data-science/src/main/frege/ch/fhnw/thga/datascience/HelloWorld.fr",
-  time=1634116297827L, jmajor=16, jminor=-1,
+  time=1634118700418L, jmajor=16, jminor=-1,
   imps={
     "frege.Prelude", "frege.prelude.PreludeArrays", "frege.prelude.PreludeBase", "frege.prelude.PreludeDecimal",
     "frege.prelude.PreludeIO", "frege.prelude.PreludeList", "frege.prelude.PreludeMonad", "frege.prelude.PreludeText",
@@ -47,19 +47,32 @@ import frege.prelude.PreludeText;
   symas={}, symcs={}, symis={}, symts={},
   symvs={
     @Meta.SymV(
-      offset=50, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="main"), stri="u",
-      sig=0, depth=0, rkind=8
+      offset=76, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="sum"), stri="s(u)",
+      sig=1, depth=1, rkind=13, doc=" add one to any number   "
+    ),
+    @Meta.SymV(
+      offset=114, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="main"), stri="u",
+      sig=2, depth=0, rkind=8
     )
   },
   symls={},
   taus={
+    @Meta.Tau(kind=9), @Meta.Tau(suba=0, tvar="a"),
     @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="ST")}),
     @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="RealWorld")}),
-    @Meta.Tau(kind=0, suba=0, subb=1),
+    @Meta.Tau(kind=0, suba=2, subb=3),
     @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="()")}),
-    @Meta.Tau(kind=0, suba=2, subb=3)
+    @Meta.Tau(kind=0, suba=4, subb=5)
   },
-  rhos={@Meta.Rho(rhofun=false, rhotau=4)}, sigmas={@Meta.Sigma(rho=0)}, exprs={@Meta.Expr()}
+  rhos={
+    @Meta.Rho(rhofun=false, rhotau=1),
+    @Meta.Rho(
+      cont={@Meta.Context(clas=@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="Num"), tau=1)}, sigma=0,
+      rhotau=0
+    ),
+    @Meta.Rho(rhofun=false, rhotau=6)
+  },
+  sigmas={@Meta.Sigma(rho=0), @Meta.Sigma(bound={"a"}, kinds={0}, rho=1), @Meta.Sigma(rho=2)}, exprs={@Meta.Expr()}
 )
 final public class HelloWorld  {
   
@@ -67,6 +80,9 @@ final public class HelloWorld  {
 
 
 
+final public static <𝓐> 𝓐 sum(final PreludeBase.CNum<𝓐> ctx$1, final Lazy<𝓐> arg$1) {
+  return ctx$1.ƒ$plus(arg$1, Thunk.<𝓐>shared((Lazy<𝓐>)(() -> ctx$1.ƒfromInt(Thunk.<Integer>lazy(1)))));
+}
 final public static Lazy<Func.U<RealWorld, Short>> $main = Thunk.<Func.U<RealWorld, Short>>shared(
       (Lazy<Func.U<RealWorld, Short>>)(() -> {
             return Prelude.putStrLn("Hello World");
