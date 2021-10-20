@@ -34,7 +34,7 @@ import frege.prelude.PreludeText;
 @SuppressWarnings("unused")
 @Meta.FregePackage(
   source="/Users/Shared/projects/git/frege-data-science/src/main/frege/ch/fhnw/thga/datascience/HelloWorld.fr",
-  time=1634118700418L, jmajor=16, jminor=-1,
+  time=1634751121220L, jmajor=16, jminor=-1,
   imps={
     "frege.Prelude", "frege.prelude.PreludeArrays", "frege.prelude.PreludeBase", "frege.prelude.PreludeDecimal",
     "frege.prelude.PreludeIO", "frege.prelude.PreludeList", "frege.prelude.PreludeMonad", "frege.prelude.PreludeText",
@@ -47,22 +47,36 @@ import frege.prelude.PreludeText;
   symas={}, symcs={}, symis={}, symts={},
   symvs={
     @Meta.SymV(
-      offset=76, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="sum"), stri="s(u)",
-      sig=1, depth=1, rkind=13, doc=" add one to any number   "
+      offset=50, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="targetFunction"), stri="s(u)",
+      sig=1, depth=1, rkind=13
     ),
     @Meta.SymV(
-      offset=114, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="main"), stri="u",
-      sig=2, depth=0, rkind=8
+      offset=76, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="startDescent"), stri="s(uuu)",
+      sig=4, depth=3, rkind=12
+    ),
+    @Meta.SymV(
+      offset=648, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="main"), stri="u",
+      sig=5, depth=0, rkind=8
+    ),
+    @Meta.SymV(
+      offset=131, name=@Meta.QName(pack="ch.fhnw.thga.datascience.HelloWorld", base="descent"), stri="s(sus(uu)su)",
+      sig=8, depth=5, rkind=47
     )
   },
   symls={},
   taus={
-    @Meta.Tau(kind=9), @Meta.Tau(suba=0, tvar="a"),
+    @Meta.Tau(kind=9), @Meta.Tau(suba=0, tvar="α"),
+    @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="Double")}),
+    @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="->")}),
+    @Meta.Tau(kind=0, suba=3, subb=2), @Meta.Tau(kind=0, suba=4, subb=2),
     @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="ST")}),
     @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="RealWorld")}),
-    @Meta.Tau(kind=0, suba=2, subb=3),
+    @Meta.Tau(kind=0, suba=6, subb=7),
     @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="()")}),
-    @Meta.Tau(kind=0, suba=4, subb=5)
+    @Meta.Tau(kind=0, suba=8, subb=9),
+    @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="Int")}),
+    @Meta.Tau(kind=2, suba=0, tcon={@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="(,)")}),
+    @Meta.Tau(kind=0, suba=12, subb=2), @Meta.Tau(kind=0, suba=13, subb=2)
   },
   rhos={
     @Meta.Rho(rhofun=false, rhotau=1),
@@ -70,9 +84,17 @@ import frege.prelude.PreludeText;
       cont={@Meta.Context(clas=@Meta.QName(kind=0, pack="frege.prelude.PreludeBase", base="Num"), tau=1)}, sigma=0,
       rhotau=0
     ),
-    @Meta.Rho(rhofun=false, rhotau=6)
+    @Meta.Rho(rhofun=false, rhotau=2), @Meta.Rho(rhofun=false, rhotau=5), @Meta.Rho(sigma=3, rhotau=2),
+    @Meta.Rho(sigma=2, rhotau=4), @Meta.Rho(sigma=2, rhotau=5), @Meta.Rho(rhofun=false, rhotau=10),
+    @Meta.Rho(rhofun=false, rhotau=11), @Meta.Rho(rhofun=false, rhotau=14), @Meta.Rho(sigma=3, rhotau=9),
+    @Meta.Rho(sigma=2, rhotau=10), @Meta.Rho(sigma=7, rhotau=11), @Meta.Rho(sigma=2, rhotau=12),
+    @Meta.Rho(sigma=6, rhotau=13)
   },
-  sigmas={@Meta.Sigma(rho=0), @Meta.Sigma(bound={"a"}, kinds={0}, rho=1), @Meta.Sigma(rho=2)}, exprs={@Meta.Expr()}
+  sigmas={
+    @Meta.Sigma(rho=0), @Meta.Sigma(bound={"α"}, kinds={0}, rho=1), @Meta.Sigma(rho=2), @Meta.Sigma(rho=3),
+    @Meta.Sigma(rho=6), @Meta.Sigma(rho=7), @Meta.Sigma(rho=8), @Meta.Sigma(rho=9), @Meta.Sigma(rho=14)
+  },
+  exprs={@Meta.Expr()}
 )
 final public class HelloWorld  {
   
@@ -80,12 +102,150 @@ final public class HelloWorld  {
 
 
 
-final public static <𝓐> 𝓐 sum(final PreludeBase.CNum<𝓐> ctx$1, final Lazy<𝓐> arg$1) {
-  return ctx$1.ƒ$plus(arg$1, Thunk.<𝓐>shared((Lazy<𝓐>)(() -> ctx$1.ƒfromInt(Thunk.<Integer>lazy(1)))));
+final public static <α> α targetFunction(final PreludeBase.CNum<α> ctx$1, final Lazy<α> arg$1) {
+  return ctx$1.ƒ$star(arg$1, arg$1);
+}
+final public static PreludeBase.TTuple2<Double, Double> descent(
+  int arg$1, Lazy<Double> arg$2, PreludeBase.TTuple2<Double, Double> arg$3, double arg$4, Lazy<Func.U<Double, Double>> arg$5
+) {
+  tailrecursion: while (true) {
+    final int arg$1f = arg$1;
+    final Lazy<Double> arg$2f = arg$2;
+    final PreludeBase.TTuple2<Double, Double> arg$3f = arg$3;
+    final double arg$4f = arg$4;
+    final Lazy<Func.U<Double, Double>> arg$5f = arg$5;
+    final PreludeBase.TTuple2<Double, Double> minFxAndX$7622 = PreludeList.<PreludeBase.TTuple2<Double, Double>>minimum(
+          new Prelude.IOrd_$l$c$r<Double, Double>(PreludeBase.IOrd_Double.it, PreludeBase.IOrd_Double.it),
+          PreludeBase.TList.DCons.<PreludeBase.TTuple2<Double, Double>>mk(
+                PreludeBase.TTuple2.<Double, Double>mk(
+                      Thunk.<Double>nested(
+                            (Lazy<Lazy<Double>>)(() -> arg$5f.call().apply(
+                                      Thunk.<Double>shared((Lazy<Double>)(() -> (double)arg$3f.mem2.call() - arg$4f))
+                                    ))
+                          ),
+                      Thunk.<Double>shared((Lazy<Double>)(() -> (double)arg$3f.mem2.call() - arg$4f))
+                    ),
+                PreludeBase.TList.DCons.<PreludeBase.TTuple2<Double, Double>>mk(
+                      PreludeBase.TTuple2.<Double, Double>mk(arg$3f.mem1, arg$3f.mem2),
+                      PreludeBase.TList.DCons.<PreludeBase.TTuple2<Double, Double>>mk(
+                            PreludeBase.TTuple2.<Double, Double>mk(
+                                  Thunk.<Double>nested(
+                                        (Lazy<Lazy<Double>>)(() -> arg$5f.call().apply(
+                                                  Thunk.<Double>shared(
+                                                        (Lazy<Double>)(() -> (double)arg$3f.mem2
+                                                            .call() + arg$4f)
+                                                      )
+                                                ))
+                                      ),
+                                  Thunk.<Double>shared((Lazy<Double>)(() -> (double)arg$3f.mem2.call() + arg$4f))
+                                ),
+                            PreludeBase.TList.DList.<PreludeBase.TTuple2<Double, Double>>mk()
+                          )
+                    )
+              )
+        );
+    final Lazy<Double> yDiff$7623 = Thunk.<Double>nested(
+          (Lazy<Lazy<Double>>)(() -> PreludeBase.<Double, Double>$(
+                    (Func.U<Double, Double>)((final Lazy<Double> η$7819) -> Thunk.<Double>shared(
+                              (Lazy<Double>)(() -> PreludeBase.IReal_Double.abs((double)η$7819.call()))
+                            )),
+                    Thunk.<Double>shared(
+                          (Lazy<Double>)(() -> (double)PreludeBase.<Double, Double>fst(
+                                    minFxAndX$7622
+                                  ) - (double)arg$3f.mem1.call())
+                        )
+                  ))
+        );
+    if (
+      (boolean)Prelude.traceLn(
+            "Limit: " + (String.valueOf(arg$1f) + (" e: " + (Double.toString(arg$4f) + (" y/x: " + PreludeText.IShow_$l$c$r.<
+              Double, Double
+            >show(PreludeText.IShow_Double.it, PreludeText.IShow_Double.it, minFxAndX$7622)))))
+          ).call() || ((arg$1f < 1) || (arg$4f < 0.001))
+    ) {
+      return minFxAndX$7622;
+    }
+    else {
+      arg$1 = arg$1f - 1;
+      arg$2 = yDiff$7623;
+      arg$3 = minFxAndX$7622;
+      arg$4 = ((double)yDiff$7623.call() == 0.0) ? arg$4f / 2.0D : arg$4f;
+      continue tailrecursion;
+    }
+  }
+}
+final public static Lazy<Double> startDescent(
+  final Lazy<Double> arg$1, final Lazy<Double> arg$2, final Lazy<Func.U<Double, Double>> arg$3
+) {
+  return PreludeBase.<Double, PreludeBase.TTuple2<Double, Double>>$(
+            (Func.U<PreludeBase.TTuple2<Double, Double>, Double>)((
+              final Lazy<PreludeBase.TTuple2<Double, Double>> η$7820
+            ) -> Thunk.<Double>shared((Lazy<Double>)(() -> PreludeBase.<Double, Double>fst(η$7820.call())))),
+            Thunk.<PreludeBase.TTuple2<Double, Double>>shared(
+                  (Lazy<PreludeBase.TTuple2<Double, Double>>)(() -> HelloWorld.descent(
+                            100, arg$2,
+                            PreludeBase.TTuple2.<Double, Double>mk(
+                                  Thunk.<Double>nested((Lazy<Lazy<Double>>)(() -> arg$3.call().apply(arg$1))), arg$1
+                                ),
+                            (double)arg$2.call(), arg$3
+                          ))
+                )
+          );
 }
 final public static Lazy<Func.U<RealWorld, Short>> $main = Thunk.<Func.U<RealWorld, Short>>shared(
       (Lazy<Func.U<RealWorld, Short>>)(() -> {
-            return Prelude.putStrLn("Hello World");
+            return PreludeMonad.IMonad_ST.<RealWorld, Short, Short>$gt$gt(
+                      Prelude.<String/*<Character>*/>print(
+                            PreludeText.IShow_String.it, "Gradient Descent. Minimum value of the function is at x="
+                          ),
+                      Thunk.<Func.U<RealWorld, Short>>nested(
+                            (Lazy<Lazy<Func.U<RealWorld, Short>>>)(() -> PreludeBase.<
+                                  Func.U<RealWorld, Short>, String/*<Character>*/
+                                >$(
+                                      (Func.U<String/*<Character>*/, Func.U<RealWorld, Short>>)((
+                                        final Lazy<String/*<Character>*/> η$7821
+                                      ) -> Thunk.<Func.U<RealWorld, Short>>shared(
+                                                (Lazy<Func.U<RealWorld, Short>>)(() -> Prelude.<
+                                                      String/*<Character>*/
+                                                    >println(PreludeText.IShow_String.it, η$7821.call()))
+                                              )),
+                                      Thunk.<String/*<Character>*/>nested(
+                                            (Lazy<Lazy<String/*<Character>*/>>)(() -> PreludeBase.<
+                                                  String/*<Character>*/, Double
+                                                >$(
+                                                      (Func.U<Double, String/*<Character>*/>)((
+                                                        final Lazy<Double> η$7822
+                                                      ) -> Thunk.<String/*<Character>*/>shared(
+                                                                (Lazy<String/*<Character>*/>)(() -> Double.toString(
+                                                                          (double)η$7822
+                                                                          .call()
+                                                                        ))
+                                                              )),
+                                                      Thunk.<Double>nested(
+                                                            (Lazy<Lazy<Double>>)(() -> HelloWorld.startDescent(
+                                                                      Thunk.<Double>shared(
+                                                                            (Lazy<Double>)(() -> - 1.1D)
+                                                                          ),
+                                                                      Thunk.<Double>lazy(
+                                                                            8.0D
+                                                                          ),
+                                                                      (Func.U<Double, Double>)((
+                                                                        final Lazy<Double> η$7823
+                                                                      ) -> Thunk.<Double>shared(
+                                                                                (Lazy<Double>)(() -> HelloWorld.<
+                                                                                      Double
+                                                                                    >targetFunction(
+                                                                                          PreludeBase.IReal_Double.it,
+                                                                                          η$7823
+                                                                                        ))
+                                                                              ))
+                                                                    ))
+                                                          )
+                                                    ))
+                                          )
+                                    ))
+                          )
+                    );
           })
     );
 
