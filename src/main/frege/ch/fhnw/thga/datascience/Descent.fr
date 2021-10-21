@@ -1,0 +1,35 @@
+module ch.fhnw.thga.datascience.Descent where
+
+targetFunction :: Num a => a -> a
+targetFunction x = x * x
+
+{-- Starting the descent to find the x value where f(x) is minimal.
+    @x@ the start value, a candidate where to look for minimum.
+    @e@ an initial "epsilon" distance how far around x to look for the local minimum.
+    @f@ the target function that determines the f(x) value that should be minimal.
+-}
+startDescent :: Double -> Double -> (Double -> Double) -> Double
+startDescent x e f = fst $ descent 100 e (f(x),x) e f
+
+-- tested with up to 100M steps, no stack overflow
+descent :: Int -> Double -> (Double,Double) -> Double -> (Double->Double) -> (Double,Double)
+descent limit old_yDiff (y, x) e f =
+    let
+        minFxAndX  = minimum [          -- min of a pair only looks at the first value
+                        (f(x-e), x-e),
+                        (y,      x  ),
+                        (f(x+e), x+e)
+                     ]
+        yDiff = abs $ fst(minFxAndX) - y
+        newE  = if (yDiff == 0.0) then e / 2.0 else e
+    in
+    if  -- traceLn ("Limit: " ++ show limit ++ " e: " ++ show e ++ " y/x: " ++ show minFxAndX) ||
+        limit < 1 || e < 0.001
+    then minFxAndX
+    else descent (limit - 1) yDiff minFxAndX newE f        -- tail recursive, efficient
+
+
+main :: IO ()
+main = do
+    println "Minimum value of the function is at x="
+    println $ show $ startDescent 10.0 1.0 targetFunction
