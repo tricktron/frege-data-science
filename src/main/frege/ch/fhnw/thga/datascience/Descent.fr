@@ -6,28 +6,28 @@ targetFunction x = x * x
 
 {-- Starting the descent to find the x value where f(x) is minimal.
     @x@ the start value, a candidate where to look for minimum.
-    @e@ an initial "epsilon" distance how far around x to look for the local minimum.
+    @dist@ an initial distance how far around x to look for the local minimum.
     @f@ the target function that determines the f(x) value that should be minimal.
 -}
 startDescent :: Double -> Double -> (Double -> Double) -> Double
-startDescent x e f = fst $ descent 100 (f(x),x) e f
+startDescent x dist f = fst $ descent 100 (f(x),x) dist f
 
 -- tested with up to 100M steps, no stack overflow
 descent :: Int -> (Double,Double) -> Double -> (Double->Double) -> (Double,Double)
-descent limit (y, x) e f =
+descent limit (y, x) dist f =
     let
         minFxAndX  = minimum [          -- min of a pair only looks at the first value
-                        (f(x-e), x-e),
+                        (f(x-dist), x-dist),
                         (y,      x  ),
-                        (f(x+e), x+e)
+                        (f(x+dist), x+dist)
                      ]
         yDiff = abs $ fst(minFxAndX) - y
-        newE  = if (yDiff == 0.0) then e / 2.0 else e
+        newDist  = if (yDiff == 0.0) then dist / 2.0 else dist
     in
     if  -- traceLn ("Limit: " ++ show limit ++ " e: " ++ show e ++ " y/x: " ++ show minFxAndX) ||
-        limit < 1 || abs e < 0.001
+        limit < 1 || abs dist < 0.001
     then minFxAndX
-    else descent (limit - 1) minFxAndX newE f        -- tail recursive, efficient
+    else descent (limit - 1) minFxAndX newDist f        -- tail recursive, efficient
 
 import Test.QuickCheck
 
