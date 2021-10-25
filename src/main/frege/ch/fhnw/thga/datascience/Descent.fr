@@ -4,8 +4,12 @@ module ch.fhnw.thga.datascience.Descent where
 targetFunction :: Num a => a -> a
 targetFunction x = x * x
 
---- A Pair of two Double values, the first representing f(x), the second x
-type FxX = (Double, Double)
+data Probe = Probe {
+    x::     Double,
+    fx::    Double,
+    dist::  Double,
+    f::     (Double -> Double)
+}
 
 {-- Starting the descent to find the x value where f(x) is minimal.
     @x@ the start value, a candidate where to look for minimum.
@@ -13,12 +17,15 @@ type FxX = (Double, Double)
     @f@ the target function that determines the f(x) value that should be minimal.
 -}
 startDescent :: Double -> Double -> (Double -> Double) -> Double
-startDescent x dist f = fst $ descent 100 (f(x),x) dist f
+startDescent x dist f = result.x where
+    result = head $ dropWhile (\probe -> probe.dist > 0.001 ) $ take 1000000 probes   -- selection
+    probes = iterate descent Probe{ x=x, fx=f(x), dist=dist, f=f }                    -- production (lazy)
 
--- tested with up to 100M steps, no stack overflow
-descent :: Int -> FxX -> Double -> (Double->Double) -> FxX
-descent limit (fx, x) dist f =
-    let
+descent :: Probe -> Probe
+descent Probe { x=x, fx=fx, dist=dist, f=f }
+    -- | ! (traceLn ("x: " ++ show x ++ " fx: " ++ show fx ++ " dist: " ++ show dist))
+    =
+    Probe { x=snd minFxX, fx=fst minFxX, dist=newDist, f=f } where
         minFxX  = minimum [          -- min of a pair only looks at the first value
                      (f(x-dist), x-dist),
                      (fx,        x  ),
@@ -26,11 +33,6 @@ descent limit (fx, x) dist f =
                   ]
         fxDiff   = abs $ fst(minFxX) - fx
         newDist  = if (fxDiff == 0.0) then dist / 2.0 else dist
-    in
-    if  -- traceLn ("Limit: " ++ show limit ++ " e: " ++ show e ++ " y/x: " ++ show minFxAndX) ||
-        limit < 1 || abs dist < 0.001
-    then minFxX
-    else descent (limit - 1) minFxX newDist f        -- tail recursive, efficient
 
 import Test.QuickCheck
 
@@ -38,7 +40,7 @@ min_property = property $ \(n::Double) -> startDescent (n * 10.0) n targetFuncti
 
 main :: IO ()
 main = do
-    println "Minimum value of the function is at x="
-    println $ show $ startDescent 10.0  1 targetFunction
+    print   "Minimum value of the function is at x="
+    println $ show $ startDescent 10.0  1.0 targetFunction
     quickCheck min_property
 
