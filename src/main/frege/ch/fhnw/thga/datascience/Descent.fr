@@ -4,6 +4,9 @@ module ch.fhnw.thga.datascience.Descent where
 targetFunction :: Num a => a -> a
 targetFunction x = x * x
 
+--- A Pair of two Double values, the first representing f(x), the second x
+type FxX = (Double, Double)
+
 {-- Starting the descent to find the x value where f(x) is minimal.
     @x@ the start value, a candidate where to look for minimum.
     @dist@ an initial distance how far around x to look for the local minimum.
@@ -13,21 +16,21 @@ startDescent :: Double -> Double -> (Double -> Double) -> Double
 startDescent x dist f = fst $ descent 100 (f(x),x) dist f
 
 -- tested with up to 100M steps, no stack overflow
-descent :: Int -> (Double,Double) -> Double -> (Double->Double) -> (Double,Double)
-descent limit (y, x) dist f =
+descent :: Int -> FxX -> Double -> (Double->Double) -> FxX
+descent limit (fx, x) dist f =
     let
-        minFxAndX  = minimum [          -- min of a pair only looks at the first value
-                        (f(x-dist), x-dist),
-                        (y,      x  ),
-                        (f(x+dist), x+dist)
-                     ]
-        yDiff = abs $ fst(minFxAndX) - y
-        newDist  = if (yDiff == 0.0) then dist / 2.0 else dist
+        minFxX  = minimum [          -- min of a pair only looks at the first value
+                     (f(x-dist), x-dist),
+                     (fx,        x  ),
+                     (f(x+dist), x+dist)
+                  ]
+        fxDiff   = abs $ fst(minFxX) - fx
+        newDist  = if (fxDiff == 0.0) then dist / 2.0 else dist
     in
     if  -- traceLn ("Limit: " ++ show limit ++ " e: " ++ show e ++ " y/x: " ++ show minFxAndX) ||
         limit < 1 || abs dist < 0.001
-    then minFxAndX
-    else descent (limit - 1) minFxAndX newDist f        -- tail recursive, efficient
+    then minFxX
+    else descent (limit - 1) minFxX newDist f        -- tail recursive, efficient
 
 import Test.QuickCheck
 
