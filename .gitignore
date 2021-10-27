@@ -1,7 +1,7 @@
 .gradle
 bin
 build
-lib
+#lib #commented to include fregefx
 .idea
 .classpath
 .project

@@ -1,0 +1,58 @@
+
+module ch.fhnw.thga.datascience.ScatterChart where
+
+import fregefx.JavaFxType
+import fregefx.JavaFxAll 
+import fregefx.JavaFxUtils 
+                              
+totalWidth  = 1024.0
+totalHeight = 768.0    
+markSize    = 10.0
+                                                                                                                                                                                                                                                                                                                                                                                       
+main args = do    
+    FregeFX.launch $ withStage buildUI
+                                    
+buildUI :: Group -> Stage -> JFX Group
+buildUI root stage = do
+    stage.setTitle "FregeFX ScatterChart"
+    ball1 <- Rectangle.new 0.0 0.0 markSize markSize
+    ball2 <- Rectangle.new 10.0 50.0 markSize markSize
+    pane <- Pane.new () :: JFX Pane
+    root <: do        
+        pane `addNode` do                        
+            bg <- Rectangle.new 0.0 0.0 totalWidth totalHeight 
+            bg.setStyle "-fx-fill:papayawhip;"
+            return bg    
+        pane `addNode` (return ball1)
+        pane `addNode` (return ball2)
+
+--    handler <- onKeyReleased ball
+--    stage.getScene >>= _.setOnKeyReleased handler
+    return root                 
+    
+--- bouncing cases when moving the ball    
+--moveBall x y dx dy ball
+--    | x < 0                      -> moveBall (x-dx) y   (-dx)  dy  ball
+--    | x + ballSize > totalWidth  -> moveBall (x-dx) y   (-dx)  dy  ball
+--    | y < 0                      -> moveBall  x    (y-dy) dx (-dy) ball
+--    | y + ballSize > totalHeight -> moveBall  x    (y-dy) dx (-dy) ball
+    
+--- general case: paint position and move to next position    
+--moveBall x y dx dy ball = do
+--    duration <- Duration.new 1.0
+--    trans <- TranslateTransition.new duration ball
+--    trans.setToX x
+--    trans.setToY y
+--    trans.setOnFinished $ onAction $ \_ -> moveBall (x+dx) (y+dy) dx dy ball
+--    trans.playFromStart
+--
+--onKeyReleased :: Node -> JFX (EventHandler KeyEvent)
+--onKeyReleased ball = return (onAction handleKeyEvent) where
+--    handleKeyEvent keyEvent = do
+--         jfxlog . show =<< keyEvent.toString -- enable to inspect key events
+--        code <- keyEvent.getCode
+--        codeName <- code.getName
+--        case codeName of
+--            "Space" -> moveBall 0.0 0.0 15.0 8.0 ball
+--            "Esc"   -> (System.exit 0) `thenDo` (const $ return ())
+--            _       -> jfxlog $ "no handler for key code name '" ++ codeName ++"'"

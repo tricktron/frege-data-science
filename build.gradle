@@ -87,6 +87,10 @@ repositories {
         dirs fregeDir
     }
     mavenCentral()
+//    mavenLocal()
+//    maven { // for the snapshots -- only if you need FregeFX
+//   		url = "https://oss.sonatype.org/content/groups/public"
+//   	}
 }
 
 void doDownloadCompiler() {
@@ -99,6 +103,9 @@ void doDownloadCompiler() {
 
 dependencies {
     implementation fregeLibDependency
+    implementation 'org.frege-lang:fregefx:0.8', { // only if you need FregeFX (and a Java with JavaFX 8)
+    		exclude module: 'frege'				   // fregefx comes with a frege dependency but we
+    	}                                          //   we prefer to use our own version
 }
 
 task fregeInit {
