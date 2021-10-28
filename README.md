@@ -9,3 +9,9 @@ and follow the installation instructions.
 https://speakerdeck.com/paulk/groovy-data-science
 
 Workshop Part 2: https://www.youtube.com/watch?v=BA0fX09cPuw
+
+## Build Instructions
+
+The build depends on JavaFx being locally installed.
+
+To achieve this clone https://github.com/Frege/FregeFX and run `./gradlew install`.

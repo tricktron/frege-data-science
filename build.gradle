@@ -85,9 +85,10 @@ idea {
 repositories {
     flatDir {
         dirs fregeDir
+//        dir  "./lib"
     }
     mavenCentral()
-//    mavenLocal()
+    mavenLocal()
 //    maven { // for the snapshots -- only if you need FregeFX
 //   		url = "https://oss.sonatype.org/content/groups/public"
 //   	}
@@ -102,10 +103,15 @@ void doDownloadCompiler() {
 }
 
 dependencies {
+    // see https://github.com/HanSolo/charts use branch jdk16
+    implementation 'eu.hansolo.fx:charts:16.0.16'
+    // see https://github.com/Frege/frege
     implementation fregeLibDependency
-    implementation 'org.frege-lang:fregefx:0.8', { // only if you need FregeFX (and a Java with JavaFX 8)
-    		exclude module: 'frege'				   // fregefx comes with a frege dependency but we
-    	}                                          //   we prefer to use our own version
+    // see https://github.com/Frege/FregeFX
+    implementation 'org.frege-lang:fregefx:0.8.2-SNAPSHOT', { // only if you need FregeFX (and a Java with JavaFX 8)
+        exclude module: 'frege'				   // fregefx comes with a frege dependency but we
+     }
+
 }
 
 task fregeInit {

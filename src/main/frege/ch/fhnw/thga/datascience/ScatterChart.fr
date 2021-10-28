@@ -6,9 +6,9 @@ import fregefx.JavaFxAll
 import fregefx.JavaFxUtils
                               
 totalWidth  = 1024.0
-totalHeight = 768.0    
-markSize    = 10.0
-                                                                                                                                                                                                                                                                                                                                                                                       
+totalHeight =  768.0
+markSize    =   10.0
+
 main args = do    
     FregeFX.launch $ withStage buildUI
 
@@ -19,13 +19,20 @@ buildUI :: Group -> Stage -> JFX Group
 buildUI root stage = do
     stage.setTitle "FregeFX ScatterChart"
     points = [(normalizeX x, normalizeY (x * x)) | x <- [ -100, -95 .. 100] ]
+    red  <- Paint.valueOf "red"
     pane <- Pane.new () :: JFX Pane
-    root <: do        
+    root <: do
+        -- background
         pane `addNode` do                        
             bg <- Rectangle.new 0.0 0.0 totalWidth totalHeight 
             bg.setStyle "-fx-fill:papayawhip;"
             return bg
-        mapM (addNode pane) $ map (\(x,y) -> Rectangle.new x y markSize markSize)  points
+        -- add x axis
+        pane `addNode` Line.new 0.0 (totalHeight / 2) totalWidth (totalHeight / 2)
+        -- add y axis
+        pane `addNode` Line.new (totalWidth / 2) totalHeight (totalWidth / 2) 0.0
+        -- add all data points
+        mapM (addNode pane) $ map (\(x,y) -> Circle.new x y markSize red)  points
         return pane
 
     return root                 
