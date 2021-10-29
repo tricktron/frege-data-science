@@ -4,17 +4,28 @@ average :: [Double] -> Double
 average [] = error "no average for empty lists"
 average xs = sum xs / fromIntegral (length xs)
 
+-- true if all values in the list are equal, false otherwise
+allEqual []  = true
+allEqual xs  = foldr (\it acc -> acc && (it == xs!!0) ) true xs
+
+-- take a list of (x,y) coordinates and return (a,b) such that f(x) = a + b * x is the
+-- linear function that minimizes the average squared distance of the data points to f(x)
 linearRegression :: [(Double,Double)] -> (Double,Double)
 linearRegression []  = error "insufficient data for linearRegression: no data points"
 linearRegression [x] = error "insufficient data for linearRegression: only one data point"
-linearRegression xys = (a, b)  where
-    b = sumOfMultipliedXYDiffs / sumOfSquaredXDiffs
-    sumOfMultipliedXYDiffs = sum $ map (\(x,y) -> (x-avgX)*(y-avgY)) xys
-    sumOfSquaredXDiffs     = sum $ map (\(x,y) -> (x-avgX)*(x-avgX)) xys
-    avgX = average $ map (\(x,y) -> x) xys
-    avgY = average $ map (\(x,y) -> y) xys
-    a = avgY - b * avgX
-
+linearRegression xys = let
+        xs   = map (\(x,y) -> x) xys
+        ys   = map (\(x,y) -> y) xys
+        avgX = average xs
+        avgY = average ys
+        sumOfMultipliedXYDiffs = sum $ map (\(x,y) -> (x-avgX)*(y-avgY)) xys
+        sumOfSquaredXDiffs     = sum $ map (\(x,y) -> (x-avgX)*(x-avgX)) xys
+        b = sumOfMultipliedXYDiffs / sumOfSquaredXDiffs
+        a = avgY - b * avgX
+    in
+    if allEqual xs         -- data on a vertical line
+    then (average ys, 0.0) -- return horizontal function
+    else (a, b)
 
 import Test.QuickCheck
 epsilon = 0.001
@@ -34,9 +45,8 @@ weightHeight = -- from https://online.stat.psu.edu/stat462/node/92/
     ]
 sample_property = once $ closeEnough (-266.5343, 6.1375) $ linearRegression weightHeight
 
--- if the values are on a vertical line, regression does not compute (could be fixed)
-vertical_property = once $ (fst result).isNaN && (snd result).isNaN where
-    result = linearRegression [(0.0,0.0), (0.0,1.0)]
+-- if the data points are on a vertical line
+vertical_property = once $ (0.5, 0.0) == linearRegression [(0.0,0.0), (0.0,1.0)]
 
 main = do
     quickCheck line_property
