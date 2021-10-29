@@ -4,12 +4,13 @@ average :: [Double] -> Double
 average [] = error "no average for empty lists"
 average xs = sum xs / fromIntegral (length xs)
 
--- true if all values in the list are equal, false otherwise
+--- true if all values in the list are equal, false otherwise
+allEqual :: Eq a => [a] -> Bool
 allEqual []  = true
 allEqual xs  = foldr (\it acc -> acc && (it == xs!!0) ) true xs
 
--- take a list of (x,y) coordinates and return (a,b) such that f(x) = a + b * x is the
--- linear function that minimizes the average squared distance of the data points to f(x)
+--- take a list of (x,y) coordinates and return (a,b) such that f(x) = a + b * x is the
+--- linear function that minimizes the average squared distance of the data points to f(x)
 linearRegression :: [(Double,Double)] -> (Double,Double)
 linearRegression []  = error "insufficient data for linearRegression: no data points"
 linearRegression [x] = error "insufficient data for linearRegression: only one data point"
