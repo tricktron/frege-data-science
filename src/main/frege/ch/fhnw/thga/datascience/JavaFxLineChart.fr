@@ -1,0 +1,48 @@
+
+module ch.fhnw.thga.datascience.JavaFxLineChart where
+
+import fregefx.JavaFxType
+import fregefx.JavaFxAll 
+import fregefx.JavaFxUtils
+
+import ch.fhnw.thga.datascience.Regression
+
+main args = do    
+    FregeFX.launch $ withStage buildUI
+
+buildUI :: Group -> Stage -> JFX Group
+buildUI root stage = do
+    stage.setTitle "FregeFX JavaFxLineChart"
+    sheets <- root.getStylesheets
+    sheets.add "file:./src/main/frege/ch/fhnw/thga/datascience/JavaFxLineChart.css"
+    root <: do
+        pane  <- Pane.new () :: JFX Pane
+        pane <: do
+            xAxis <- NumberAxis.new "Weight (kg)"    60.0    80.0    5.0
+            yAxis <- NumberAxis.new "Height (cm)"   100.0   200.0   20.0
+            lineChart <- LineChart.new xAxis yAxis
+            lineChart.setTitle "Linear Regression"
+
+            -- add all regression data points
+            regSeries <- XYChartSeries.new ()
+            (a,b) = linearRegression weightHeight
+            regSeries.setName $ "f(x)= " ++ show a ++ " + " ++ show b ++ " x"
+            regData = map (\x -> (x, a + b * x)) $ map fromInt [60, 80]
+            for regData $ addXY regSeries
+            lineChart.getData >>= _.add regSeries
+
+            -- add all sample data points
+            xyseries <- XYChartSeries.new ()
+            xyseries.setName "Original Data"
+            for weightHeight $ addXY xyseries
+            lineChart.getData >>= _.add xyseries
+
+            return lineChart
+    return root
+
+addXY :: XYChartSeries -> (Double, Double) -> JFX ()
+addXY series (x, y) = do
+    xypoint <- XYChartData.new x y
+    series.getData >>= _.add xypoint
+    return ()
+

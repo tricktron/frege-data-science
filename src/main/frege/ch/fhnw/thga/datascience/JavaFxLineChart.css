@@ -1,0 +1,29 @@
+.chart {
+    -fx-min-width: 800;
+    -fx-min-height: 600;
+}
+
+/* regression line */
+
+.default-color0.chart-series-line {
+    -fx-stroke: dodgerblue;
+}
+.default-color0.chart-line-symbol {
+    -fx-background-color: transparent;
+}
+.default-color0.chart-legend-item-symbol{
+    -fx-background-color: dodgerblue;
+ }
+
+/* data points */
+
+.default-color1.chart-series-line {
+    -fx-stroke: transparent;
+}
+.default-color1.chart-line-symbol {
+    -fx-background-color:  red;
+    -fx-background-radius: 0;
+}
+.default-color1.chart-legend-item-symbol{
+    -fx-background-color: red;
+ }
