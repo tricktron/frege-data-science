@@ -1,3 +1,8 @@
+.chart {
+    -fx-min-width: 800;
+    -fx-min-height: 600;
+}
+
 .chart-symbol { /* solid circle */
     -fx-background-color: #f9d900;
     -fx-background-radius: 5px;

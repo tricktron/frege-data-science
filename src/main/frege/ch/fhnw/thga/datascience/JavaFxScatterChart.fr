@@ -18,15 +18,15 @@ buildUI root stage = do
     root <: do
         pane  <- Pane.new () :: JFX Pane
         pane <: do
-            xAxis <- NumberAxis.new "X"    60.0    80.0    5.0
-            yAxis <- NumberAxis.new "Y"   100.0   200.0   20.0
+            xAxis <- NumberAxis.new "Weight (kg)"    60.0    80.0    5.0
+            yAxis <- NumberAxis.new "Height (cm)"   100.0   200.0   20.0
             scatterChart <- ScatterChart.new xAxis yAxis
-            scatterChart.setTitle "X/Y Scatter Chart"
+            scatterChart.setTitle "Linear Regression"
 
             -- add all regression data points
             regSeries <- XYChartSeries.new ()
             (a,b) = linearRegression weightHeight
-            regSeries.setName $ "f(x)=" ++ show a ++ "+" ++ show b ++ "x"
+            regSeries.setName $ "f(x)= " ++ show a ++ " + " ++ show b ++ " x"
             regData = map (\x -> (x/10, a + b * x/10)) $ map fromInt [600 .. 800]
             for regData $ addXY regSeries
             scatterChart.getData >>= _.add regSeries
