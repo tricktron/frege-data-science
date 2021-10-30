@@ -27,7 +27,7 @@ buildUI root stage = do
             regSeries <- XYChartSeries.new ()
             (a,b) = linearRegression weightHeight
             regSeries.setName $ "f(x)=" ++ show a ++ "+" ++ show b ++ "x"
-            regData = map (\x -> (x, a + b * x)) $ map fromInt [60 .. 80]
+            regData = map (\x -> (x/10, a + b * x/10)) $ map fromInt [600 .. 800]
             for regData $ addXY regSeries
             scatterChart.getData >>= _.add regSeries
 
