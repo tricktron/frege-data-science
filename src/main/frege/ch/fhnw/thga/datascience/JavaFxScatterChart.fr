@@ -19,7 +19,7 @@ buildUI root stage = do
         pane  <- Pane.new () :: JFX Pane
         pane <: do
             xAxis <- NumberAxis.new "Weight (kg)"    60.0    80.0    5.0
-            yAxis <- NumberAxis.new "Height (cm)"   100.0   200.0   20.0
+            yAxis <- NumberAxis.new "Height (cm)"   100.0   210.0   20.0
             scatterChart <- ScatterChart.new xAxis yAxis
             scatterChart.setTitle "Linear Regression"
 
