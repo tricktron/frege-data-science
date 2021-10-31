@@ -5,23 +5,10 @@ import fregefx.JavaFxType
 import fregefx.JavaFxAll 
 import fregefx.JavaFxUtils
 
-import ch.fhnw.thga.datascience.Regression
+import ch.fhnw.thga.datascience.Regression (linearRegression, weightHeight)
 
 main args = do    
     FregeFX.launch $ withResizableStage buildNode
-
-withResizableStage :: (Pane -> Stage -> JFX Node) -> Stage -> JFX ()
-withResizableStage buildNode stage = do
-    pane <- AnchorPane.new ()
-    node <- buildNode pane stage
-    AnchorPane.setBottomAnchor node  0.0
-    AnchorPane.setLeftAnchor   node  0.0
-    AnchorPane.setRightAnchor  node  0.0
-    AnchorPane.setTopAnchor    node  0.0
-    pane `addNode` return node
-    scene <- Scene.new pane
-    stage.setScene scene
-    stage.show
 
 buildNode :: Pane -> Stage -> JFX Node
 buildNode pane stage = do
@@ -34,25 +21,25 @@ buildNode pane stage = do
     lineChart <- LineChart.new xAxis yAxis
     lineChart.setTitle "Linear Regression"
 
-    -- add all regression data points
+    -- add the regression line first such that it is below the data points
     regSeries <- XYChartSeries.new ()
-    (a,b) = linearRegression weightHeight
+    (a, b) = linearRegression weightHeight
     regSeries.setName $ "f(x)= " ++ show a ++ " + " ++ show b ++ " x"
-    regData = map (\x -> (x, a + b * x)) $ map fromInt [60, 80]
+    regData = map (\x -> (x, a + b * x)) [60.0, 80.0]
     for regData $ addXY regSeries
     lineChart.getData >>= _.add regSeries
 
     -- add all sample data points
-    xyseries <- XYChartSeries.new ()
-    xyseries.setName "Original Data"
-    for weightHeight $ addXY xyseries
-    lineChart.getData >>= _.add xyseries
+    xySeries <- XYChartSeries.new ()
+    xySeries.setName "Original Data"
+    for weightHeight $ addXY xySeries
+    lineChart.getData >>= _.add xySeries
 
     return lineChart
 
 addXY :: XYChartSeries -> (Double, Double) -> JFX ()
 addXY series (x, y) = do
-    xypoint <- XYChartData.new x y
-    series.getData >>= _.add xypoint
+    xyPoint <- XYChartData.new x y
+    series.getData >>= _.add xyPoint
     return ()
 
