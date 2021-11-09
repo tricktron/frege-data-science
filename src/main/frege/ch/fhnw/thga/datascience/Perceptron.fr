@@ -1,0 +1,96 @@
+module ch.fhnw.thga.datascience.Perceptron where
+-- adapted from https://hackage.haskell.org/package/perceptron-0.1.0.3/docs/src/Learning-Perceptron.html#pla
+
+--------------------------------------------------------------------------------
+-- Samples
+--------------------------------------------------------------------------------
+
+-- An augmented input vector, i.e., an input vector with a constant artificial
+-- component for multiplication with the bias term prepended.
+newtype Aug a = A [a]
+
+-- Augment an input vector by prepending a constant artificial bias-term component.
+aug :: Num a => [a] -> Aug a
+aug xs = A (1 : xs)
+
+-- A training sample: an augmented classification, i.e. an augmented input
+-- vector and the corresponding desired output.
+data Sample a = S (Aug a) Bool   -- original: !Bool
+
+--------------------------------------------------------------------------------
+-- Hypotheses
+--------------------------------------------------------------------------------
+
+-- A hypothesis: a weight vector with a bias term prepended
+newtype Hyp a = H [a]
+
+-- Apply the hypothesis to the augmented input vector.
+ap :: (Num a,Show a) => Hyp a -> Aug a -> Bool
+ap (H ws) (A xs)
+    --| traceLn (show $ take 5 ws) = undefined  -- never reached
+    | otherwise = sum (zipWith (*) ws xs) > 0
+
+-- Test the hypothesis against the training sample.
+test :: (Show a,Num a) => Hyp a -> Sample a -> Bool
+test h (S a y) = ap h a == y
+
+-- Adjust the hypothesis towards the sample.
+adjust :: (Num a,Show a) => Hyp a -> Sample a -> Hyp a
+adjust (H ws) (S (A xs) y) = H (zipWith op ws xs)
+  where
+    op
+       --| traceLn (show $ take 5 ws) = undefined  -- never reached
+       | y         = (+)  -- sample was classified as true
+       | otherwise = (-)
+
+-- "Promote" the hypothesis to a classifier.
+classifyWith :: (Show a,Num a) => Hyp a -> [a] -> Bool
+classifyWith h xs = ap h (aug xs)
+
+--------------------------------------------------------------------------------
+-- Algorithm
+--------------------------------------------------------------------------------
+
+-- | Return a classifier that agrees with the given list of classifications.
+-- /Only terminates if the given classifications are linearly separable!/
+hyp :: (Show a,Num a) => [([a],Bool)] -> Hyp a
+hyp ds = go h0 ss
+  where
+    ss = [S (aug xs) y | (xs, y) <- ds]  -- training samples
+    h0 = H (repeat 0)                    -- initial hypothesis (infinite list will be cut by zip)
+
+    -- iterate
+    go h []                    = h
+    go h (s : ss') | test h s  = go h ss'
+                   | otherwise = go (adjust h s) ss
+
+-- linear coefficients for the hypothesis classificator such that y = m*x + b
+data LineCoeff = LineCoeff {
+    m :: Double, --- the slope
+    b :: Double  --- where line crosses the y axis
+}
+
+data Vertical = Vertical {
+    x :: Double --- a vertical line through the x axis at value x
+}
+
+-- coefficients for the line where b + w1*x + w2*y == 0
+coeff :: Hyp Double -> (Vertical | LineCoeff)
+coeff (H (bias:w1:[w2]))
+    | w2 == 0 -> Left  $ Vertical  { x = (-bias)/w1 }
+    | w2 != 0 -> Right $ LineCoeff { m = w1 / (-w2), b =  bias / (-w2) };
+coeff _ = error "we can only calculate coefficients for bias plus two weights"
+
+
+out (H ws)
+   | length ws == 3 -> case coeff (H ws) of
+        Left vertical   -> "vertical line at x = "++ show vertical.x
+        Right linecoeff -> "y = " ++ show linecoeff.m ++"x + " ++ show linecoeff.b
+   | otherwise = show ws
+
+main = do
+    println $ out $ hyp [ ([1.0,2.0,3.0],true), ([4.0,5.0,6.0],false)]
+    println $ out $ hyp [ ([0.0,0.0],true), ([2.0,2.0],false)]
+    println $ out $ hyp [ ([0.0,0.0],true), ([0.0,2.0],false)]
+    println $ out $ hyp [ ([0.0,0.0],true), ([2.0,0.0],false)]
+    println $ out $ hyp [ ([0.0,0.0],false), ([0.0,1.0],true), ([1.0,0.0],true), ([1.0,1.0],true)]  -- learing "OR"
