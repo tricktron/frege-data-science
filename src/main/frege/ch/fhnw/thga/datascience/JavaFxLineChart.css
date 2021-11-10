@@ -17,13 +17,39 @@
 
 /* data points */
 
-.default-color1.chart-series-line {
+.chart-series-line {
     -fx-stroke: transparent;
 }
-.default-color1.chart-line-symbol {
-    -fx-background-color:  red;
+.chart-line-symbol {
     -fx-background-radius: 0;
 }
+
+.default-color1.chart-line-symbol {
+    -fx-background-color:  green;
+    -fx-opacity: 0.2;
+}
 .default-color1.chart-legend-item-symbol{
+    -fx-background-color: green;
+ }
+
+.default-color2.chart-line-symbol {
+    -fx-background-color:  red;
+    -fx-opacity: 0.2;
+}
+.default-color2.chart-legend-item-symbol{
+    -fx-background-color: red;
+ }
+
+.default-color3.chart-line-symbol {
+    -fx-background-color:  green;
+}
+.default-color3.chart-legend-item-symbol{
+    -fx-background-color: green;
+ }
+
+.default-color4.chart-line-symbol {
+    -fx-background-color:  red;
+}
+.default-color4.chart-legend-item-symbol{
     -fx-background-color: red;
  }

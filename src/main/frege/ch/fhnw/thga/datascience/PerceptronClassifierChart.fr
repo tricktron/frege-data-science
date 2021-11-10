@@ -1,0 +1,66 @@
+
+module ch.fhnw.thga.datascience.PerceptronClassifierChart where
+
+import fregefx.JavaFxType
+import fregefx.JavaFxAll 
+import fregefx.JavaFxUtils
+
+import ch.fhnw.thga.datascience.Perceptron
+
+trueValues   = [ (0.0, 0.0), (1.0, 1.0), (2.0, 1.0) ]
+falseValues  = [ (0.0, 1.0), (1.0, 2.0), (2.0, 2.0) ]
+--trueValues   = [ (0.0, 0.0) ] -- to test a vertical line
+--falseValues  = [ (1.0, 0.0) ]
+
+main args = do    
+    FregeFX.launch $ withResizableStage buildNode
+
+buildNode :: Pane -> Stage -> JFX Node
+buildNode pane stage = do
+    stage.setTitle "FregeFX Perceptron Classifier Chart"
+    sheets <- pane.getStylesheets
+    sheets.add "file:./src/main/frege/ch/fhnw/thga/datascience/JavaFxLineChart.css"
+
+    xAxis <- NumberAxis.new "x"     (-1.0)     5.0    1.0
+    yAxis <- NumberAxis.new "y"     (-1.0)     5.0    1.0
+    lineChart <- LineChart.new xAxis yAxis
+    lineChart.setTitle "Perceptron Classifier for linearly separable data"
+
+    -- add the line first such that it is below the data points
+    pairToList = map (\(a,b)-> [a,b])
+    trained = hyp ( zip ( pairToList trueValues)  (repeat true)
+                 ++ zip ( pairToList falseValues) (repeat false) )
+    (label, lineValues) = case coeff trained of
+        Left (Vertical x) ->
+            ("x = " ++ show x, [ (x, (-1.0)), (x,5.0)])
+        Right (LineCoeff m b) ->
+            ("f(x)= " ++ show b ++ " + " ++ show m ++ " x", map (\x -> (x, b + m * x)) [(-1.0), 5.0] )
+
+    scale = 5
+    scaled val = fromIntegral val / fromIntegral scale
+    allClassified result =
+        [ (scaled x, scaled y )
+        | x <- [(-1 * scale) .. (5 * scale)], y <- [(-1 * scale) .. (5 * scale)],
+        result == classifyWith trained [scaled x, scaled y]  ]
+
+    addSeries lineChart label          lineValues
+    addSeries lineChart "Test True"    (allClassified true)
+    addSeries lineChart "Test False"   (allClassified false)
+    addSeries lineChart "Sample True"  trueValues
+    addSeries lineChart "Sample False" falseValues
+
+    return lineChart
+
+addXY :: XYChartSeries -> (Double, Double) -> JFX ()
+addXY series (x, y) = do
+    xyPoint <- XYChartData.new x y
+    series.getData >>= _.add xyPoint
+    return ()
+
+addSeries :: LineChart -> String -> [(Double, Double)] -> JFX ()
+addSeries chart name values = do
+    series <- XYChartSeries.new ()
+    series.setName name
+    for values $ addXY series
+    chart.getData >>= _.add series
+    return ()
