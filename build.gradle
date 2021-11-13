@@ -104,7 +104,7 @@ void doDownloadCompiler() {
 
 dependencies {
     // see https://github.com/HanSolo/charts use branch jdk16
-    implementation 'eu.hansolo.fx:charts:16.0.16'
+//    implementation 'eu.hansolo.fx:charts:16.0.16'
     // see https://github.com/Frege/frege
     implementation fregeLibDependency
     // see https://github.com/Frege/FregeFX

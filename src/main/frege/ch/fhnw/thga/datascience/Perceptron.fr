@@ -25,27 +25,26 @@ data Sample a = S (Aug a) Bool   -- original: !Bool
 newtype Hyp a = H [a]
 
 -- Apply the hypothesis to the augmented input vector.
-ap :: (Num a,Show a) => Hyp a -> Aug a -> Bool
-ap (H ws) (A xs)
+signal :: (Num a,Show a) => Hyp a -> Aug a -> Bool
+signal (H ws) (A xs)
     --| traceLn (show $ take 5 ws) = undefined  -- never reached
     | otherwise = sum (zipWith (*) ws xs) > 0
 
 -- Test the hypothesis against the training sample.
-test :: (Show a,Num a) => Hyp a -> Sample a -> Bool
-test h (S a y) = ap h a == y
+classifiesAsExpected :: (Show a,Num a) => Hyp a -> Sample a -> Bool
+classifiesAsExpected h (S a y) = signal h a == y
 
 -- Adjust the hypothesis towards the sample.
 adjust :: (Num a,Show a) => Hyp a -> Sample a -> Hyp a
 adjust (H ws) (S (A xs) y) = H (zipWith op ws xs)
   where
     op
-       --| traceLn (show $ take 5 ws) = undefined  -- never reached
-       | y         = (+)  -- sample was classified as true
+       | y         = (+)  -- sample was classified as true: add signal value to weight of that input channel
        | otherwise = (-)
 
 -- "Promote" the hypothesis to a classifier.
 classifyWith :: (Show a,Num a) => Hyp a -> [a] -> Bool
-classifyWith h xs = ap h (aug xs)
+classifyWith h xs = signal h (aug xs)
 
 --------------------------------------------------------------------------------
 -- Algorithm
@@ -61,8 +60,8 @@ hyp ds = go h0 ss
 
     -- iterate
     go h []                    = h
-    go h (s : ss') | test h s  = go h ss'
-                   | otherwise = go (adjust h s) ss
+    go h (s : ss') | classifiesAsExpected h s  = go h ss'
+                   | otherwise                 = go (adjust h s) ss
 
 -- linear coefficients for the hypothesis classificator such that y = m*x + b
 data LineCoeff = LineCoeff {
@@ -82,15 +81,45 @@ coeff (H (bias:w1:[w2]))
 coeff _ = error "we can only calculate coefficients for bias plus two weights"
 
 
-out (H ws)
-   | length ws == 3 -> case coeff (H ws) of
-        Left vertical   -> "vertical line at x = "++ show vertical.x
-        Right linecoeff -> "y = " ++ show linecoeff.m ++"x + " ++ show linecoeff.b
-   | otherwise = show ws
+import Test.QuickCheck
+
+-- if we guess a line
+-- and create data that this line classifies
+-- then the data is linearly separable
+-- and a newly trained perceptron for this data can be constructed
+-- such that it (at least) classfies all of the training data correctly
+line_property = property $ \(randomB::Double, randomM::Double) ->
+    let
+        distance = 1.0
+        xVals = [(-2.0), (-1.0), 0.0, 1.0, 2.0]
+        b = 10 / (if randomB < 1 then 1 else randomB) -- the algorithm is very sensitive against bigger values
+        m = 10 / (if randomM < 1 then 1 else randomM)
+        f x = b + m * x -- the random separation line to create linerarly separable sample data
+        abovePoints  = map (\x -> [x, (f x) + distance]  ) xVals
+        aboveSamples = zip abovePoints (repeat true)
+        belowPoints  = map (\x -> [x, (f x) - distance] ) xVals
+        belowSamples = zip belowPoints (repeat false)
+        trained      = hyp (aboveSamples ++ belowSamples) -- this strict separation might hamper performance
+        classify     = classifyWith trained
+    in
+    all (\s -> true  == classify s) abovePoints &&
+    all (\s -> false == classify s) belowPoints
+
+horizontal_line = once $ checks $ coeff $ hyp [ ([0.0,0.0],true), ([0.0,2.0],false)] where
+    checks (Right (LineCoeff m b)) = m == 0.0 && b >= 0.0 && b <= 2.0
+    checks _ = false
+
+vertical_line = once $ checks $ coeff $ hyp [ ([0.0,0.0],true), ([2.0,0.0],false)] where
+    checks (Left (Vertical x)) = x >= 0.0 && x <= 2.0
+    checks _ = false
+
+or_classfier = once $ checks $ coeff $ hyp [ ([0.0,0.0],false), ([0.0,1.0],true), ([1.0,0.0],true), ([1.0,1.0],true)] where
+    checks (Right (LineCoeff m b)) = m == (-1.0) && b >= 0.0 && b < 1.0  -- draw an image and you will understand this
+    checks _ = false
 
 main = do
-    println $ out $ hyp [ ([1.0,2.0,3.0],true), ([4.0,5.0,6.0],false)]
-    println $ out $ hyp [ ([0.0,0.0],true), ([2.0,2.0],false)]
-    println $ out $ hyp [ ([0.0,0.0],true), ([0.0,2.0],false)]
-    println $ out $ hyp [ ([0.0,0.0],true), ([2.0,0.0],false)]
-    println $ out $ hyp [ ([0.0,0.0],false), ([0.0,1.0],true), ([1.0,0.0],true), ([1.0,1.0],true)]  -- learing "OR"
+    quickCheck horizontal_line
+    quickCheck vertical_line
+    quickCheck or_classfier
+    quickCheck line_property
+
