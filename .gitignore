@@ -7,3 +7,7 @@ build
 .project
 .settings
 .DS_Store
+lib
+.envrc
+.direnv
+.vscode
