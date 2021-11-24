@@ -1,9 +1,17 @@
 plugins {
-    id 'ch.fhnw.thga.frege' version '1.3.0-alpha'
+    id 'ch.fhnw.thga.frege' version '1.4.0-alpha'
 }
 
 frege {
     version = '3.25.84'
     release = '3.25alpha'
-    compilerFlags = ['-fp', layout.projectDirectory.file('lib/fregefx-0.8.2-SNAPSHOT.jar').getAsFile().getAbsolutePath()]
+}
+repositories {
+    mavenLocal()
+}
+
+dependencies {
+    implementation 'org.frege-lang:fregefx:0.8.2-SNAPSHOT', { // only if you need FregeFX (and a Java with JavaFX 8)
+        exclude module: 'frege'				   // fregefx comes with a frege dependency but we
+     }
 }

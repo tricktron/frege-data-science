@@ -1,13 +1,14 @@
 
 module ch.fhnw.thga.datascience.JavaFxLineChart where
 
+import frege.Prelude hiding (ListView) -- avoid the compiler warning
 import fregefx.JavaFxType
 import fregefx.JavaFxAll 
 import fregefx.JavaFxUtils
 
 import ch.fhnw.thga.datascience.Regression (linearRegression, weightHeight)
 
-main args = do    
+main args = do     
     FregeFX.launch $ withResizableStage buildNode
 
 buildNode :: Pane -> Stage -> JFX Node

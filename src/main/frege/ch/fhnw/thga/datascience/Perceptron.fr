@@ -25,13 +25,13 @@ data Sample a = S (Aug a) Bool   -- original: !Bool
 newtype Hyp a = H [a]
 
 -- Apply the hypothesis to the augmented input vector.
-signal :: (Num a,Show a) => Hyp a -> Aug a -> Bool
+signal :: (Real a,Show a) => Hyp a -> Aug a -> Bool
 signal (H ws) (A xs)
     --| traceLn (show $ take 5 ws) = undefined  -- never reached
-    | otherwise = sum (zipWith (*) ws xs) > 0
+    | otherwise = sum (zipWith (*) ws xs) > 0.0
 
 -- Test the hypothesis against the training sample.
-classifiesAsExpected :: (Show a,Num a) => Hyp a -> Sample a -> Bool
+classifiesAsExpected :: (Show a,Real a) => Hyp a -> Sample a -> Bool
 classifiesAsExpected h (S a y) = signal h a == y
 
 -- Adjust the hypothesis towards the sample.
@@ -43,7 +43,7 @@ adjust (H ws) (S (A xs) y) = H (zipWith op ws xs)
        | otherwise = (-)
 
 -- "Promote" the hypothesis to a classifier.
-classifyWith :: (Show a,Num a) => Hyp a -> [a] -> Bool
+classifyWith :: (Show a,Real a) => Hyp a -> [a] -> Bool
 classifyWith h xs = signal h (aug xs)
 
 --------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ classifyWith h xs = signal h (aug xs)
 
 -- | Return a classifier that agrees with the given list of classifications.
 -- /Only terminates if the given classifications are linearly separable!/
-hyp :: (Show a,Num a) => [([a],Bool)] -> Hyp a
+hyp :: (Show a,Real a) => [([a],Bool)] -> Hyp a
 hyp ds = go h0 ss
   where
     ss = [S (aug xs) y | (xs, y) <- ds]  -- training samples
@@ -114,12 +114,12 @@ vertical_line = once $ checks $ coeff $ hyp [ ([0.0,0.0],true), ([2.0,0.0],false
     checks _ = false
 
 or_classfier = once $ checks $ coeff $ hyp [ ([0.0,0.0],false), ([0.0,1.0],true), ([1.0,0.0],true), ([1.0,1.0],true)] where
-    checks (Right (LineCoeff m b)) = m == (-1.0) && b >= 0.0 && b < 1.0  -- draw an image and you will understand this
+    checks (Right (LineCoeff m b)) = m == (-1.0) && b >= 0.0 && b < 1.0  -- see https://towardsdatascience.com/perceptron-learning-algorithm-d5db0deab975
     checks _ = false
 
 main = do
     quickCheck horizontal_line
     quickCheck vertical_line
     quickCheck or_classfier
-    quickCheck line_property
+    verboseCheck line_property
 
