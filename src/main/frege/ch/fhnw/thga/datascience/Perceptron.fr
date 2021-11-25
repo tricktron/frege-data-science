@@ -27,7 +27,7 @@ newtype Hyp a = H [a]
 -- Apply the hypothesis to the augmented input vector.
 signal :: (Real a,Show a) => Hyp a -> Aug a -> Bool
 signal (H ws) (A xs)
-    --| traceLn (show $ take 5 ws) = undefined  -- never reached
+    -- | traceLn (show $ take 5 ws) = undefined  -- never reached
     | otherwise = sum (zipWith (*) ws xs) > 0.0
 
 -- Test the hypothesis against the training sample.
@@ -92,16 +92,17 @@ line_property = property $ \(randomB::Double, randomM::Double) ->
     let
         distance = 1.0
         xVals = [(-2.0), (-1.0), 0.0, 1.0, 2.0]
-        b = 10 / (if randomB < 1 then 1 else randomB) -- the algorithm is very sensitive against bigger values
-        m = 10 / (if randomM < 1 then 1 else randomM)
+        b = 50 / (if randomB < 1 then 1 else randomB) -- the algorithm is very sensitive against bigger values
+        m = 50 / (if randomM < 1 then 1 else randomM)
         f x = b + m * x -- the random separation line to create linerarly separable sample data
-        abovePoints  = map (\x -> [x, (f x) + distance]  ) xVals
+        abovePoints  = map (\x -> [x - m * distance, (f x) + distance]  ) xVals
         aboveSamples = zip abovePoints (repeat true)
-        belowPoints  = map (\x -> [x, (f x) - distance] ) xVals
+        belowPoints  = map (\x -> [x + m * distance, (f x) - distance] ) xVals
         belowSamples = zip belowPoints (repeat false)
-        trained      = hyp (aboveSamples ++ belowSamples) -- this strict separation might hamper performance
+        trained      = hyp (aboveSamples ++ belowSamples) 
         classify     = classifyWith trained
     in
+    traceLn ("b,m: " ++ show (b,m)) ||
     all (\s -> true  == classify s) abovePoints &&
     all (\s -> false == classify s) belowPoints
 
@@ -113,6 +114,14 @@ vertical_line = once $ checks $ coeff $ hyp [ ([0.0,0.0],true), ([2.0,0.0],false
     checks (Left (Vertical x)) = x >= 0.0 && x <= 2.0
     checks _ = false
 
+-- ok:         1 000
+-- barely ok:  2 000
+steep_line = once $ checks $ coeff $ hyp [ ([0.0, 0.0],true), ([0.5, 1000.0],true), ([0.5, 0.0],false), ([1.0, 1000.0],false)] where
+    checks (Right (LineCoeff m b)) 
+        | traceLn ( show (m, b)) = false 
+        | otherwise = m >= 1000.0 && b <= 0.0 && b >= (-1000.0)
+    checks _ = false
+
 or_classfier = once $ checks $ coeff $ hyp [ ([0.0,0.0],false), ([0.0,1.0],true), ([1.0,0.0],true), ([1.0,1.0],true)] where
     checks (Right (LineCoeff m b)) = m == (-1.0) && b >= 0.0 && b < 1.0  -- see https://towardsdatascience.com/perceptron-learning-algorithm-d5db0deab975
     checks _ = false
@@ -121,5 +130,6 @@ main = do
     quickCheck horizontal_line
     quickCheck vertical_line
     quickCheck or_classfier
-    verboseCheck line_property
+    quickCheck steep_line
+    quickCheck line_property 
 
