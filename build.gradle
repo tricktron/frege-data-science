@@ -1,17 +1,18 @@
 plugins {
-    id 'ch.fhnw.thga.frege' version '1.4.0-alpha'
+    id 'ch.fhnw.thga.frege' version '2.0.1-alpha'
 }
 
 frege {
     version = '3.25.84'
     release = '3.25alpha'
+    mainModule = 'ch.fhnw.thga.datascience.JavaFxLineChart'
 }
 repositories {
     mavenLocal()
 }
 
 dependencies {
-    implementation 'org.frege-lang:fregefx:0.8.2-SNAPSHOT', { // only if you need FregeFX (and a Java with JavaFX 8)
+    frege 'org.frege-lang:fregefx:0.8.2-SNAPSHOT', { // only if you need FregeFX (and a Java with JavaFX 8)
         exclude module: 'frege'				   // fregefx comes with a frege dependency but we
      }
 }
