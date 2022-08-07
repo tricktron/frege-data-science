@@ -1,7 +1,7 @@
 {
     description            = "frege-data-science-dev-shell";
     inputs.flake-utils.url = "github:numtide/flake-utils";
-    inputs.nixpkgs.url     = "github:NixOS/nixpkgs";
+    inputs.nixpkgs.url     = "github:NixOS/nixpkgs/release-22.05";
 
     outputs = 
     {
@@ -25,6 +25,8 @@
             [
                 (pkgs.openjdk11.override { enableJavaFX = true; })
             ];
+
+            FREGE_LS_EXTRA_CLASSPATH = "/Users/tricktron/.m2/repository/org/frege-lang/fregefx/0.8.2-SNAPSHOT/fregefx-0.8.2-SNAPSHOT.jar";
         };
     });
 }

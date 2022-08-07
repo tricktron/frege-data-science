@@ -11,3 +11,4 @@ lib
 .envrc
 .direnv
 .vscode
+.frege-ls
