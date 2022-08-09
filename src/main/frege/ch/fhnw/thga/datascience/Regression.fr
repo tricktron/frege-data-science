@@ -1,0 +1,56 @@
+module ch.fhnw.thga.datascience.Regression where
+
+average :: [Double] -> Double
+average [] = error "no average for empty lists"
+average xs = sum xs / fromIntegral (length xs)
+
+--- true if all values in the list are equal, false otherwise
+allEqual :: Eq a => [a] -> Bool
+allEqual []  = true
+allEqual xs  = foldr (\it acc -> acc && (it == xs!!0) ) true xs
+
+--- take a list of (x,y) coordinates and return (a,b) such that f(x) = a + b * x is the
+--- linear function that minimizes the average squared distance of the data points to f(x)
+linearRegression :: [(Double,Double)] -> (Double,Double)
+linearRegression []  = error "insufficient data for linearRegression: no data points"
+linearRegression [x] = error "insufficient data for linearRegression: only one data point"
+linearRegression xys = let
+        xs   = map (\(x,y) -> x) xys
+        ys   = map (\(x,y) -> y) xys
+        avgX = average xs
+        avgY = average ys
+        sumOfMultipliedXYDiffs = sum $ map (\(x,y) -> (x-avgX)*(y-avgY)) xys
+        sumOfSquaredXDiffs     = sum $ map (\(x,y) -> (x-avgX)*(x-avgX)) xys
+        b = sumOfMultipliedXYDiffs / sumOfSquaredXDiffs
+        a = avgY - b * avgX
+    in
+    if allEqual xs         -- data on a vertical line
+    then (average ys, 0.0) -- return horizontal function
+    else (a, b)
+
+import Test.QuickCheck
+epsilon = 0.001
+closeEnough (a1,b1) (a2,b2) = abs ( a1 - a2 ) < epsilon && abs ( b1 - b2 ) < epsilon
+
+-- if all data points are on the same line, the coordinates of that line must be the regression
+line_property = property $ \(a::Double, b::Double) ->
+    closeEnough (a,b) $ linearRegression [ (x, a + b * x) | x <- [-2.0, -1.0, 0.0, 1.0, 2.0] ]
+
+-- if all function values are equal, then the rise is 0 and a is the function value
+horizontal_property = property $ \(a::Double) ->
+    closeEnough (a, 0.0) $ linearRegression [ (x, a) | x <- [-2.0, -1.0, 0.0, 1.0, 2.0] ]
+
+weightHeight = -- from https://online.stat.psu.edu/stat462/node/92/
+    [(63.0, 127.0) ,(64.0, 121.0) ,(66.0, 142.0) ,(69.0, 157.0) ,(69.0, 162.0)
+    ,(71.0, 156.0) ,(71.0, 169.0) ,(72.0, 165.0) ,(73.0, 181.0) ,(75.0, 208.0)
+    ]
+sample_property = once $ closeEnough (-266.5343, 6.1375) $ linearRegression weightHeight
+
+-- if the data points are on a vertical line
+vertical_property = once $ (0.5, 0.0) == linearRegression [(0.0,0.0), (0.0,1.0)]
+
+main = do
+    quickCheck line_property
+    quickCheck horizontal_property
+    quickCheck sample_property
+    quickCheck vertical_property

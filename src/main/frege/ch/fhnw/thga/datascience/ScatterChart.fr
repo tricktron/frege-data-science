@@ -1,0 +1,40 @@
+
+module ch.fhnw.thga.datascience.ScatterChart where
+
+import fregefx.JavaFxType
+import fregefx.JavaFxAll 
+import fregefx.JavaFxUtils
+                              
+totalWidth  = 1024.0
+totalHeight =  768.0
+markSize    =    6.0
+
+main args = do    
+    FregeFX.launch $ withStage buildUI
+
+normalize (x, y) = (normalizeX x, normalizeY y) where
+    normalizeX x = totalWidth  / 2 + (fromInt x * 5 ) -- the scaling factors are subject to change
+    normalizeY y = totalHeight / 2 - (fromInt y / 30)
+
+buildUI :: Group -> Stage -> JFX Group
+buildUI root stage = do
+    stage.setTitle "FregeFX ScatterChart"
+    points = [ normalize (x, x * x) | x <- [ -100, -95 .. 100] ]
+    red  <- Paint.valueOf "red"
+    pane <- Pane.new () :: JFX Pane
+    root <: do
+        -- background
+        pane `addNode` do                        
+            bg <- Rectangle.new 0.0 0.0 totalWidth totalHeight 
+            bg.setStyle "-fx-fill:papayawhip;"
+            return bg
+        -- add x axis
+        pane `addNode` Line.new 0.0 (totalHeight / 2) totalWidth (totalHeight / 2)
+        -- add y axis
+        pane `addNode` Line.new (totalWidth / 2) totalHeight (totalWidth / 2) 0.0
+        -- add all data points
+        for points $ \(x,y) -> pane `addNode` Circle.new x y markSize red
+        return pane
+
+    return root                 
+

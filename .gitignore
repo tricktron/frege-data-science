@@ -1,8 +1,14 @@
 .gradle
 bin
 build
-lib
+#lib #commented to include fregefx
+.idea
 .classpath
 .project
 .settings
 .DS_Store
+lib
+.envrc
+.direnv
+.vscode
+.frege

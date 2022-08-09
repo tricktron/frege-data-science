@@ -1,0 +1,135 @@
+module ch.fhnw.thga.datascience.Perceptron where
+-- adapted from https://hackage.haskell.org/package/perceptron-0.1.0.3/docs/src/Learning-Perceptron.html#pla
+
+--------------------------------------------------------------------------------
+-- Samples
+--------------------------------------------------------------------------------
+
+-- An augmented input vector, i.e., an input vector with a constant artificial
+-- component for multiplication with the bias term prepended.
+newtype Aug a = A [a]
+
+-- Augment an input vector by prepending a constant artificial bias-term component.
+aug :: Num a => [a] -> Aug a
+aug xs = A (1 : xs)
+
+-- A training sample: an augmented classification, i.e. an augmented input
+-- vector and the corresponding desired output.
+data Sample a = S (Aug a) Bool   -- original: !Bool
+
+--------------------------------------------------------------------------------
+-- Hypotheses
+--------------------------------------------------------------------------------
+
+-- A hypothesis: a weight vector with a bias term prepended
+newtype Hyp a = H [a]
+
+-- Apply the hypothesis to the augmented input vector.
+signal :: (Real a,Show a) => Hyp a -> Aug a -> Bool
+signal (H ws) (A xs)
+    -- | traceLn (show $ take 5 ws) = undefined  -- never reached
+    | otherwise = sum (zipWith (*) ws xs) > 0.0
+
+-- Test the hypothesis against the training sample.
+classifiesAsExpected :: (Show a,Real a) => Hyp a -> Sample a -> Bool
+classifiesAsExpected h (S a y) = signal h a == y
+
+-- Adjust the hypothesis towards the sample.
+adjust :: (Num a,Show a) => Hyp a -> Sample a -> Hyp a
+adjust (H ws) (S (A xs) y) = H (zipWith op ws xs)
+  where
+    op
+       | y         = (+)  -- sample was classified as true: add signal value to weight of that input channel
+       | otherwise = (-)
+
+-- "Promote" the hypothesis to a classifier.
+classifyWith :: (Show a,Real a) => Hyp a -> [a] -> Bool
+classifyWith h xs = signal h (aug xs)
+
+--------------------------------------------------------------------------------
+-- Algorithm
+--------------------------------------------------------------------------------
+
+-- | Return a classifier that agrees with the given list of classifications.
+-- /Only terminates if the given classifications are linearly separable!/
+hyp :: (Show a,Real a) => [([a],Bool)] -> Hyp a
+hyp ds = go h0 ss
+  where
+    ss = [S (aug xs) y | (xs, y) <- ds]  -- training samples
+    h0 = H (repeat 0)                    -- initial hypothesis (infinite list will be cut by zip)
+
+    -- iterate
+    go h []                    = h
+    go h (s : ss') | classifiesAsExpected h s  = go h ss'
+                   | otherwise                 = go (adjust h s) ss
+
+-- linear coefficients for the hypothesis classificator such that y = m*x + b
+data LineCoeff = LineCoeff {
+    m :: Double, --- the slope
+    b :: Double  --- where line crosses the y axis
+}
+
+data Vertical = Vertical {
+    x :: Double --- a vertical line through the x axis at value x
+}
+
+-- coefficients for the line where b + w1*x + w2*y == 0
+coeff :: Hyp Double -> (Vertical | LineCoeff)
+coeff (H (bias:w1:[w2]))
+    | w2 == 0 -> Left  $ Vertical  { x = (-bias)/w1 }
+    | w2 != 0 -> Right $ LineCoeff { m = w1 / (-w2), b =  bias / (-w2) };
+coeff _ = error "we can only calculate coefficients for bias plus two weights"
+
+
+import Test.QuickCheck
+
+-- if we guess a line
+-- and create data that this line classifies
+-- then the data is linearly separable
+-- and a newly trained perceptron for this data can be constructed
+-- such that it (at least) classfies all of the training data correctly
+line_property = property $ \(randomB::Double, randomM::Double) ->
+    let
+        distance = 1.0
+        xVals = [(-2.0), (-1.0), 0.0, 1.0, 2.0]
+        b = 50 / (if randomB < 1 then 1 else randomB) -- the algorithm is very sensitive against bigger values
+        m = 50 / (if randomM < 1 then 1 else randomM)
+        f x = b + m * x -- the random separation line to create linerarly separable sample data
+        abovePoints  = map (\x -> [x - m * distance, (f x) + distance]  ) xVals
+        aboveSamples = zip abovePoints (repeat true)
+        belowPoints  = map (\x -> [x + m * distance, (f x) - distance] ) xVals
+        belowSamples = zip belowPoints (repeat false)
+        trained      = hyp (aboveSamples ++ belowSamples) 
+        classify     = classifyWith trained
+    in
+    traceLn ("b,m: " ++ show (b,m)) ||
+    all (\s -> true  == classify s) abovePoints &&
+    all (\s -> false == classify s) belowPoints
+
+horizontal_line = once $ checks $ coeff $ hyp [ ([0.0,0.0],true), ([0.0,2.0],false)] where
+    checks (Right (LineCoeff m b)) = m == 0.0 && b >= 0.0 && b <= 2.0
+    checks _ = false
+
+vertical_line = once $ checks $ coeff $ hyp [ ([0.0,0.0],true), ([2.0,0.0],false)] where
+    checks (Left (Vertical x)) = x >= 0.0 && x <= 2.0
+    checks _ = false
+
+-- ok:         1 000
+-- barely ok:  2 000
+steep_line = once $ checks $ coeff $ hyp [ ([0.0, 0.0],true), ([0.5, 1000.0],true), ([0.5, 0.0],false), ([1.0, 1000.0],false)] where
+    checks (Right (LineCoeff m b)) 
+        | traceLn ( show (m, b)) = false 
+        | otherwise = m >= 1000.0 && b <= 0.0 && b >= (-1000.0)
+    checks _ = false
+
+or_classfier = once $ checks $ coeff $ hyp [ ([0.0,0.0],false), ([0.0,1.0],true), ([1.0,0.0],true), ([1.0,1.0],true)] where
+    checks (Right (LineCoeff m b)) = m == (-1.0) && b >= 0.0 && b < 1.0  -- see https://towardsdatascience.com/perceptron-learning-algorithm-d5db0deab975
+    checks _ = false
+
+main = do
+    quickCheck horizontal_line
+    quickCheck vertical_line
+    quickCheck or_classfier
+    quickCheck steep_line
+    quickCheck line_property 
+

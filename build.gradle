@@ -1,41 +1,19 @@
 plugins {
-    id 'application'
-    id 'ch.fhnw.thga.frege' version '1.0.0-alpha'
-}
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    implementation files(compileFrege.fregeCompilerJar)
-
-}
-
-application {
-    mainClass = 'ch.fhnw.thga.datascience.HelloWorld'
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
+    id 'ch.fhnw.thga.frege' version '4.2.0-alpha'
 }
 
 frege {
     version = '3.25.84'
     release = '3.25alpha'
-    mainSourceDir = layout.projectDirectory.dir('src/main/frege')
+    mainModule = 'ch.fhnw.thga.datascience.JavaFxLineChart'
+    replModule = 'ch.fhnw.thga.datascience.JavaFxLineChart'
+}
+repositories {
+    mavenLocal()
 }
 
-tasks.register('copyCompiledFregeClasses', Copy) {
-    from compileFrege.fregeOutputDir
-    include '**/*.java'
-    into layout.projectDirectory.dir('src/main/java')
-    mustRunAfter compileFrege
-}
-
-compileJava.configure {
-    options.encoding = 'UTF-8'
-    dependsOn compileFrege, copyCompiledFregeClasses
+dependencies {
+    frege 'org.frege-lang:fregefx:0.8.2-SNAPSHOT', { // only if you need FregeFX (and a Java with JavaFX 8)
+        exclude module: 'frege'				   // fregefx comes with a frege dependency but we
+     }
 }

@@ -1,0 +1,55 @@
+.chart {
+    -fx-min-width: 800;
+    -fx-min-height: 600;
+}
+
+/* regression line */
+
+.default-color0.chart-series-line {
+    -fx-stroke: dodgerblue;
+}
+.default-color0.chart-line-symbol {
+    -fx-background-color: transparent;
+}
+.default-color0.chart-legend-item-symbol{
+    -fx-background-color: dodgerblue;
+ }
+
+/* data points */
+
+.chart-series-line {
+    -fx-stroke: transparent;
+}
+.chart-line-symbol {
+    -fx-background-radius: 0;
+}
+
+.default-color1.chart-line-symbol {
+    -fx-background-color:  green;
+    -fx-opacity: 0.2;
+}
+.default-color1.chart-legend-item-symbol{
+    -fx-background-color: green;
+ }
+
+.default-color2.chart-line-symbol {
+    -fx-background-color:  red;
+    -fx-opacity: 0.2;
+}
+.default-color2.chart-legend-item-symbol{
+    -fx-background-color: red;
+ }
+
+.default-color3.chart-line-symbol {
+    -fx-background-color:  green;
+}
+.default-color3.chart-legend-item-symbol{
+    -fx-background-color: green;
+ }
+
+.default-color4.chart-line-symbol {
+    -fx-background-color:  red;
+}
+.default-color4.chart-legend-item-symbol{
+    -fx-background-color: red;
+ }
