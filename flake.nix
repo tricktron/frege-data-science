@@ -25,8 +25,6 @@
             [
                 (pkgs.openjdk11.override { enableJavaFX = true; })
             ];
-
-            FREGE_LS_EXTRA_CLASSPATH = "/Users/tricktron/.m2/repository/org/frege-lang/fregefx/0.8.2-SNAPSHOT/fregefx-0.8.2-SNAPSHOT.jar";
         };
     });
 }
