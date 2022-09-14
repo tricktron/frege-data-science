@@ -4,19 +4,32 @@ module ch.fhnw.thga.datascience.PerceptronClassifierChart where
 import fregefx.JavaFxType
 import fregefx.JavaFxAll 
 import fregefx.JavaFxUtils
+import System.Random(mkStdGen)
+import Data.List(partition)
 
 import ch.fhnw.thga.datascience.Perceptron
+import ch.fhnw.thga.datascience.Regression(buildXYPairs)
 
-trueValues   = [ (0.0, 0.0), (1.0, 1.0), (2.0, 1.0) ]
-falseValues  = [ (0.0, 1.0), (1.0, 2.0), (2.0, 2.0) ]
+--trueValues   = [ (0.0, 0.0), (1.0, 1.0), (2.0, 1.0) ]
+--falseValues  = [ (0.0, 1.0), (1.0, 2.0), (2.0, 2.0) ]
 --trueValues   = [ (0.0, 0.0) ] -- to test a vertical line
 --falseValues  = [ (1.0, 0.0) ]
 
-main args = do    
-    FregeFX.launch $ withResizableStage buildNode
+linearPlaneFunction (x, y) = 0.5 * x + 1 - y
 
-buildNode :: Pane -> Stage -> JFX Node
-buildNode pane stage = do
+generateRandomValues :: IO ([(Double, Double)], [(Double, Double)])
+generateRandomValues = do
+    gen = Random.mkStdGen 5
+    randomValues = take 20 $ Random.randomRs (-1.0, 5.0) gen
+    xyPoints = buildXYPairs randomValues
+    pure $ partition (\xyPair -> linearPlaneFunction xyPair > 0) xyPoints
+
+main args = do
+    valuePair <- generateRandomValues
+    FregeFX.launch $ withResizableStage (buildNode valuePair)
+
+buildNode :: ([(Double, Double)], [(Double, Double)]) -> Pane -> Stage -> JFX Node
+buildNode trueFalsePair pane stage = do
     stage.setTitle "FregeFX Perceptron Classifier Chart"
     sheets <- pane.getStylesheets
     sheets.add "file:./src/main/frege/ch/fhnw/thga/datascience/JavaFxLineChart.css"
@@ -25,6 +38,8 @@ buildNode pane stage = do
     yAxis <- NumberAxis.new "y"     (-1.0)     5.0    1.0
     lineChart <- LineChart.new xAxis yAxis
     lineChart.setTitle "Perceptron Classifier for linearly separable data"
+
+    (trueValues, falseValues) = trueFalsePair
 
     -- add the line first such that it is below the data points
     pairToList = map (\(a,b)-> [a,b])
