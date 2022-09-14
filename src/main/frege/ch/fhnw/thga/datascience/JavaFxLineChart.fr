@@ -6,13 +6,14 @@ import fregefx.JavaFxType
 import fregefx.JavaFxAll 
 import fregefx.JavaFxUtils
 
-import ch.fhnw.thga.datascience.Regression (linearRegression, weightHeight)
+import ch.fhnw.thga.datascience.Regression (linearRegression, readParseCSV)
 
-main args = do     
-    FregeFX.launch $ withResizableStage buildNode
+main args = do
+    weightHeight <- readParseCSV "./src/main/frege/ch/fhnw/thga/datascience/regression.csv"  
+    FregeFX.launch $ withResizableStage (buildNode weightHeight)
 
-buildNode :: Pane -> Stage -> JFX Node
-buildNode pane stage = do
+buildNode :: [(Double, Double)] -> Pane -> Stage -> JFX Node
+buildNode weightHeight pane stage = do
     stage.setTitle "FregeFX JavaFxLineChart"
     sheets <- pane.getStylesheets
     sheets.add "file:./src/main/frege/ch/fhnw/thga/datascience/JavaFxLineChart.css"

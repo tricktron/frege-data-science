@@ -40,10 +40,43 @@ line_property = property $ \(a::Double, b::Double) ->
 horizontal_property = property $ \(a::Double) ->
     closeEnough (a, 0.0) $ linearRegression [ (x, a) | x <- [-2.0, -1.0, 0.0, 1.0, 2.0] ]
 
+readParseCSV :: String -> IO [(Double, Double)]
+readParseCSV filePath = do
+    file   <- openReader filePath
+    lines  <- file.getLines
+    values  = concatMap splitCommas lines
+    doubles = map parseDouble values
+    pure $ buildXYPairs doubles where 
+        parseDouble :: String -> Double
+        parseDouble s = case s.double of
+            Left ex      -> nan
+            Right double -> double
+
+splitCommas :: String -> [String]
+splitCommas ""   = []
+splitCommas line = ´,´.splitted line
+
+buildXYPairs :: [a] -> [(a, a)]
+buildXYPairs xs = 
+    let 
+        (evens, odds) = partitionEvenOddIndices xs
+    in
+        zip evens odds
+
+partitionEvenOddIndices :: [a] -> ([a], [a])
+partitionEvenOddIndices = foldr (\x (evens, odds) -> (x:odds, evens)) ([],[])
+
 weightHeight = -- from https://online.stat.psu.edu/stat462/node/92/
     [(63.0, 127.0) ,(64.0, 121.0) ,(66.0, 142.0) ,(69.0, 157.0) ,(69.0, 162.0)
     ,(71.0, 156.0) ,(71.0, 169.0) ,(72.0, 165.0) ,(73.0, 181.0) ,(75.0, 208.0)
     ]
+
+read_property = once $ morallyDubiousIOProperty do
+    csvPath = "./src/main/frege/ch/fhnw/thga/datascience/regression.csv"
+    actual <- readParseCSV csvPath
+    pure $ weightHeight == actual
+
+
 sample_property = once $ closeEnough (-266.5343, 6.1375) $ linearRegression weightHeight
 
 -- if the data points are on a vertical line
@@ -54,3 +87,4 @@ main = do
     quickCheck horizontal_property
     quickCheck sample_property
     quickCheck vertical_property
+    quickCheck read_property
