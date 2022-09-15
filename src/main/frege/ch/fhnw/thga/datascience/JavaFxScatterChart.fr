@@ -5,13 +5,14 @@ import fregefx.JavaFxType
 import fregefx.JavaFxAll 
 import fregefx.JavaFxUtils
 
-import ch.fhnw.thga.datascience.Regression
+import ch.fhnw.thga.datascience.Regression(linearRegression, readParseCSV)
 
 main args = do    
-    FregeFX.launch $ withStage buildUI
+    weightHeight <- readParseCSV "./src/main/frege/ch/fhnw/thga/datascience/regression.csv"  
+    FregeFX.launch $ withStage (buildUI weightHeight)
 
-buildUI :: Group -> Stage -> JFX Group
-buildUI root stage = do
+buildUI :: [(Double, Double)] -> Group -> Stage -> JFX Group
+buildUI weightHeight root stage = do
     stage.setTitle "FregeFX JavaFxScatterChart"
     sheets <- root.getStylesheets
     sheets.add "file:./src/main/frege/ch/fhnw/thga/datascience/JavaFxScatterChart.css"
